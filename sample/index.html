@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Npiet JS demo</title>
+	</head>
+	<body>
+		<div>
+			<p>
+				See program execution result below in the output area.
+			</p>
+			<button id="execute">Execute Program</button><br><br>
+			<img src="assets/print_dollar.png"/>
+		</div>
+		<div style="border: 1px solid black; background-color: black; color: white; min-height: 200px;">
+			<h3>Output:</h3>
+			<p id="output"></p>
+		</div>
+		<script src="js/npiet.js"></script>
+		<script>
+			window.onload = function() {
+				
+				// Execute program on click.
+				document.getElementById('execute').addEventListener('click', function() {
+					// See  https://emscripten.org/docs/api_reference/module.html
+					const myMod = {
+						preRun: [
+							function(mod) {
+								const { FS } = mod;
+								// To use this function, npiet.js was built with --use-preload-plugins
+								FS.createPreloadedFile('/', 'print_dollar.png', '/assets/print_dollar.png', true, false);
+							}
+						],
+						// Add prefix as npiet.wasm is hosted under assets folder
+						locateFile: function(path, prefix) {
+							return `assets/${path}`;
+						},
+						arguments: ['-e', '50', '-cs', '30', '/print_dollar.png'],
+						print: function(text) {
+							const output = document.getElementById('output');
+							output.innerHTML += (text + '<br>');
+						}
+					};
+					
+					npiet(myMod).then(() => console.log('Execution complete!'));
+				});
+				
+			}
+		</script>
+	<body>
+<html>
