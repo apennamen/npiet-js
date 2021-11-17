@@ -1,10 +1,10 @@
 
-var createModule = (function() {
+var npiet = (function() {
   var _scriptDir = typeof document !== 'undefined' && document.currentScript ? document.currentScript.src : undefined;
   
   return (
-function(createModule) {
-  createModule = createModule || {};
+function(npiet) {
+  npiet = npiet || {};
 
 
 
@@ -21,7 +21,7 @@ function(createModule) {
 // after the generated code, you will need to define   var Module = {};
 // before the code. Then that object will be used in the code, and you
 // can continue to use Module afterwards as well.
-var Module = typeof createModule !== 'undefined' ? createModule : {};
+var Module = typeof npiet !== 'undefined' ? npiet : {};
 
 // Set up the promise that indicates the Module is initialized
 var readyPromiseResolve, readyPromiseReject;
@@ -5933,13 +5933,13 @@ run();
 
 
 
-  return createModule.ready
+  return npiet.ready
 }
 );
 })();
 if (typeof exports === 'object' && typeof module === 'object')
-  module.exports = createModule;
+  module.exports = npiet;
 else if (typeof define === 'function' && define['amd'])
-  define([], function() { return createModule; });
+  define([], function() { return npiet; });
 else if (typeof exports === 'object')
-  exports["createModule"] = createModule;
+  exports["npiet"] = npiet;
