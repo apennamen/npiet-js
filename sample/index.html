@@ -25,9 +25,10 @@
 					const myMod = {
 						preRun: [
 							function(mod) {
-								const { FS } = mod;
+								// FS_createPreloadedFile maps to FS.createPreloadedFile in optimized code
+								const { FS_createPreloadedFile } = mod;
 								// To use this function, npiet.js was built with --use-preload-plugins
-								FS.createPreloadedFile('/', 'print_dollar.png', '/assets/print_dollar.png', true, false);
+								FS_createPreloadedFile('/', 'print_dollar.png', '/assets/print_dollar.png', true, false);
 							}
 						],
 						// Add prefix as npiet.wasm is hosted under assets folder

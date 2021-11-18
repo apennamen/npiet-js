@@ -28,6 +28,7 @@ Stop the running container
 
 ## How to Use npiet.js
 The sample folder provides an example on how npiet.js can be used to execute a simple piet program.
+Just run `npx http-serve .` in the sample folder and access with a browser to try it!
 
 npiet.js provides the `npiet()` method to pilot execution of the program.
 It allows you to override all the methods of the [emscripten Module object](https://emscripten.org/docs/api_reference/module.html)
@@ -44,8 +45,9 @@ const myMod = {
   preRun: [
 	// Use the FileSystem provided by emscripten (MEMFS) to load the image (png, gif...)
 	function(mod) {
-	  const { FS } = mod;
-	  FS.createPreloadedFile('/', 'myprogram.png', '/assets/myprogram.png', true, false);
+	  // As the npiet.js was optimized, we should refer to FS this way
+	  const { FS_createPreloadedFile } = mod;
+	  FS_createPreloadedFile('/', 'myprogram.png', '/assets/myprogram.png', true, false);
 	}
   ],
   arguments: ['-t', '-cs', '5', '/myprogram.png'],
@@ -104,5 +106,8 @@ Finally, the last step (*compiling with emcc*) can be decomposed like this:
 | -s EXIT_RUNTIME=1 | Force the runtime to shutdown. Allows to flush the fprint, and launch several times the npiet() function |
 | -s ENVIRONMENT=web | small optimization to reduce bundle size |
 | -s MODULARIZE=1 -s 'EXPORT_NAME="npiet"' | Options to produce a js output as a module, with function named "npiet" |
-| -s EXPORTED_RUNTIME_METHODS='["FS"]' | Needed to expose the FS.\* functions (FS.writeFile, FS.createPreloadedFile) in preRun function |
+| -s EXPORTED_RUNTIME_METHODS='["FS"]' | Needed to expose the FS.\* functions (FS_writeFile, FS_createPreloadedFile) in preRun function |
 | --use-preload-plugins | Needed to use FS.createPreloadedFile |
+| -O3 | Optimization for release build, see https://emscripten.org/docs/optimizing/Optimizing-Code.html#optimizing-code |
+| --closure=1 | Runs Closure Compiler on JS code to optimize bundle size |
+
