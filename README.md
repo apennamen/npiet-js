@@ -37,7 +37,7 @@ You'll need to override at least `preRun` and `arguments` in order to communicat
 
 With the npiet executable, you would execute this command line:
 
-`npiet -t -cs 5 myprogram.png`
+`npiet -cs 5 myprogram.png`
 
 With npiet.js, you do it like this:
 ```js
@@ -45,7 +45,23 @@ const myMod = {
   preRun: [
 	// Use the FileSystem provided by emscripten (MEMFS) to load the image (png, gif...)
 	function(mod) {
-	  // As the npiet.js was optimized, we should refer to FS this way
+	  const { FS } = mod;
+	  FS.createPreloadedFile('/', 'myprogram.png', '/assets/myprogram.png', true, false);
+	}
+  ],
+  arguments: ['-cs', '5', '/myprogram.png'],
+};
+
+npiet(myMod).then(() => console.log('Execution complete!'));
+```
+
+Note that with npiet-min.js, some functions have been mangled, for example:
+```js
+const myMod = {
+  preRun: [
+	// Use the FileSystem provided by emscripten (MEMFS) to load the image (png, gif...)
+	function(mod) {
+	  // As the npiet-min.js was optimized, we should access FS_createPreloadedFile this way
 	  const { FS_createPreloadedFile } = mod;
 	  FS_createPreloadedFile('/', 'myprogram.png', '/assets/myprogram.png', true, false);
 	}
@@ -83,7 +99,7 @@ Everything is contained in those three lines:
 ```bash
 emconfigure ./configure
 emmake make npiet
-emcc npiet.o -o npiet.js -s USE_LIBPNG=1 -s USE_GIFLIB=1 -s EXIT_RUNTIME=1 -s ENVIRONMENT=web -s MODULARIZE=1 -s 'EXPORT_NAME="npiet"' -s EXPORTED_RUNTIME_METHODS='["FS"]' --use-preload-plugins
+emcc /src/libgd/Bin/libgd.a npiet.o -o npiet-min.js -s USE_LIBPNG=1 -s USE_GIFLIB=1 -s EXIT_RUNTIME=1 -s ENVIRONMENT=web -s MODULARIZE=1 -s 'EXPORT_NAME="npiet"' -s EXPORTED_RUNTIME_METHODS='["FS"]' --use-preload-plugins -O3 --closure=1
 ```
 
 The *configure* step checks the presence of lib_gif.h, png.h and gd.h, to enable special features of npiet (GIF support, PNG support, and Trace file feature).
@@ -99,8 +115,9 @@ Finally, the last step (*compiling with emcc*) can be decomposed like this:
 
 | Arguments | Description |
 |---|---|
+| /src/libgd/Bin/libgd.a | Path to the locally created libgd library |
 | npiet.o | Output of the last step, and input of the emcc compiler |
-| -o npiet.js | Specify that we only want js and wasm generated (no html) |
+| -o npiet-min.js | Specify that we only want js and wasm generated (no html) |
 | -s USE_LIBPNG=1 | Linking to the libpng port |
 | -s USE_GIFLIB=1 | Linking to the giflib port |
 | -s EXIT_RUNTIME=1 | Force the runtime to shutdown. Allows to flush the fprint, and launch several times the npiet() function |

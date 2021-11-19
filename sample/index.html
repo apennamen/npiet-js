@@ -15,6 +15,7 @@
 			<h3>Output:</h3>
 			<p id="output"></p>
 		</div>
+		<div id="trace-wrapper"></div>
 		<script src="js/npiet.js"></script>
 		<script>
 			window.onload = function() {
@@ -35,14 +36,26 @@
 						locateFile: function(path, prefix) {
 							return `assets/${path}`;
 						},
-						arguments: ['-e', '50', '-cs', '30', '/print_dollar.png'],
+						arguments: ['-e', '50', '-tpic', '-cs', '30', '/print_dollar.png'],
 						print: function(text) {
 							const output = document.getElementById('output');
 							output.innerHTML += (text + '<br>');
 						}
 					};
 					
-					npiet(myMod).then(() => console.log('Execution complete!'));
+					npiet(myMod).then((mod) => {
+						const { FS } = mod;
+						
+						const traceFile = FS.readFile('npiet-trace.png', {encoding: 'binary'});
+						const blob = new Blob([traceFile], {'type': 'image/png'});
+						const url = URL.createObjectURL(blob); 
+						
+						const traceWrapper = document.getElementById('trace-wrapper');
+						const img = document.createElement('img');
+						img.src = url;
+						
+						traceWrapper.appendChild(img);
+					});
 				});
 				
 			}
